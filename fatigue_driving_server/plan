@@ -1,0 +1,13 @@
+1.学习openCV使用，找相关教程
+2.搭建环境
+    import cv2
+    import immutils
+    import dlib
+    import scipy
+3.找网上的代码
+4.根据需求搭建本地代码
+5.服务器同步构建
+6.安卓学习
+7.安卓构建
+8.完成文档
+9.
