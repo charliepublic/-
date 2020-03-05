@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">FatigueDrive</string>
+    <string name="textureview">TextureView(摄像头预览)</string>
+    <string name="picture">传输图像组</string>
+    <string name="imageview">ImageView(视频帧数据预览)</string>
+</resources>
