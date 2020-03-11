@@ -11,14 +11,15 @@ import android.os.Bundle;
 import android.view.TextureView;
 import android.widget.ImageView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements TextureView.SurfaceTextureListener {
@@ -82,44 +83,59 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                     Camera.Size size = camera.getParameters().getPreviewSize();
                     try{
                         YuvImage image = new YuvImage(data, ImageFormat.NV21, size.width, size.height, null);
-                        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                        image.compressToJpeg(new Rect(0, 0, size.width, size.height), 80, stream);
-                        Bitmap bmp = BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.size());
+                        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        image.compressToJpeg(new Rect(0, 0, size.width, size.height), 80, byteArrayOutputStream);
+                        Bitmap bmp = BitmapFactory.decodeByteArray(byteArrayOutputStream.toByteArray(), 0, byteArrayOutputStream.size());
                         ivPic.setImageBitmap(bmp);
                         //传输压缩后的东西
+
                         new Thread(){
                             @Override
                             public  void run(){
-                                try {
-                                    //发送
-                                    String host = "127.0.0.1";
-                                    int port = 9999;
-                                    DatagramSocket socket = new DatagramSocket();
-                                    ByteArrayInputStream in = new ByteArrayInputStream(stream.toByteArray());
-                                    byte[] data = new byte[1024];
-                                    while (in.read(data) != -1){
-                                        DatagramPacket packet = new DatagramPacket(
-                                                data,data.length, InetAddress.getByName(host),port);
-                                        socket.send(packet);
-                                    }
-                                    //接收服务器反馈数据
-                                    byte[] back_buf = new byte[1024];
-                                    DatagramPacket backPacket = new DatagramPacket(back_buf, back_buf.length);
-                                    socket.receive(backPacket);  //接收返回数据
-                                    String backMsg = new String(back_buf, 0, backPacket.getLength());
-                                    System.out.println("服务器返回的数据为:" + backMsg);
-                                    socket.close();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
+                               send(byteArrayOutputStream);
                             }
                         }.start();
-                        stream.close();
+                        byteArrayOutputStream.close();
                     }catch(Exception e){
                         e.printStackTrace();
                     }
                 }
             });
+        }
+    }
+
+    private  void send(ByteArrayOutputStream byteArrayOutputStream ){
+        try {
+            //发送
+            String host = "192.168.1.14";
+            int port = 9999;
+            Socket socket = new Socket(host,port);
+            OutputStream outputStream = socket.getOutputStream();
+            InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+
+            int size = inputStream.available();
+            StringBuilder s = new StringBuilder(String.valueOf(size));
+            while(s.length()<10){
+                s.append(" ");
+            }
+            byte[] bytes = s.toString().getBytes();
+            outputStream.write(bytes);
+            outputStream.flush();
+
+            byte []buf = new byte[1024];
+            int len;
+            while((len = inputStream.read(buf)) > 0){
+                outputStream.write(buf);
+                outputStream.flush();
+            }
+            socket.shutdownOutput();
+//            InputStream result = socket.getInputStream();
+//            byte []b = new byte[1024];
+//            int i = result.read(b);
+//            outputStream.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
