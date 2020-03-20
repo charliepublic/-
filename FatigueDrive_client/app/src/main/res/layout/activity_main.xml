@@ -39,9 +39,7 @@
                 android:id="@+id/iv_pic"
                 android:layout_width="200dp"
                 android:layout_height="200dp"
-                android:layout_gravity="right"
-                tools:ignore="RtlHardcoded"
-                android:contentDescription="@string/picture" />
+                android:layout_gravity="center_horizontal"/>
 
             <TextView
                 android:layout_width="wrap_content"
