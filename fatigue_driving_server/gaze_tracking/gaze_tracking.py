@@ -129,6 +129,12 @@ class GazeTracking(object):
             cv2.line(frame, (x_left, y_left - 5), (x_left, y_left + 5), color)
             cv2.line(frame, (x_right - 5, y_right), (x_right + 5, y_right), color)
             cv2.line(frame, (x_right, y_right - 5), (x_right, y_right + 5), color)
-            print("get")
-
         return frame
+
+    @property
+    def face_detector(self):
+        return self._face_detector
+
+    @property
+    def predictor(self):
+        return self._predictor
