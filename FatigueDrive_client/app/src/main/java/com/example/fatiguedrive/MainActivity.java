@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
             Camera.Parameters params = mCamera.getParameters();
             List<Camera.Size> sizeList = params.getSupportedPreviewSizes();
-            Camera.Size pictureS = MyCamPara.getInstance().getPreviewSize(sizeList, 400);
+            Camera.Size pictureS = MyCamPara.getInstance().getPreviewSize(sizeList, 300);
             params.setPreviewSize(pictureS.width, pictureS.height);
             mCamera.setParameters(params);
             // 设置自动对焦模式

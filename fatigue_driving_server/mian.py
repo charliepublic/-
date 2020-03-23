@@ -1,15 +1,14 @@
 import socket
 import time
+import numpy as np
+import cv2
+
 from io import BytesIO
 from multiprocessing import Process
 from multiprocessing import Queue
-
-import numpy as np
 from PIL import Image
-import cv2
 
 from detect import eyes_detect
-from server import server_process
 
 
 def server_run(queue, host):
@@ -41,22 +40,17 @@ def server_run(queue, host):
         # 图像处理
         image = Image.open(BytesIO(temp))
         img = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
-        queue.put(img)
 
+        queue.put(img)
+        # cv2.imshow("Frame", img)
+        # cv2.waitKey(1)
 
         # End time
         end = time.time()
         # Time elapsed
         seconds = end - start
-        fps = 1 / seconds
-        # print("Estimated frames per second : {0}".format(fps))
-
-    # process = server_process()
-    # process.run(host)
-
-    # print("in")
-    # cv2.imshow("Frame", img)
-    # cv2.waitKey(1)
+        # fps = 1 / seconds
+        # print("Estimated second : {0}".format(seconds))
 
 
 def eyes_detect_func(queue, detect):
@@ -65,13 +59,16 @@ def eyes_detect_func(queue, detect):
         start = time.time()
 
         detect.detect_picture(queue.get(block=True))
+        # cv2.imshow("Frame", queue.get(block=True))
+        # cv2.waitKey(1)
 
         # End time
         end = time.time()
         # Time elapsed
         seconds = end - start
-        fps = 1 / seconds
-        # print("Estimated frames per second : {0}".format(fps))
+        # fps = 1 / seconds
+        print("total : {0}".format(seconds))
+        print("\n")
 
 
 if __name__ == '__main__':
@@ -83,7 +80,8 @@ if __name__ == '__main__':
     print('Bind TCP on 9999...')
     host.listen(20)
 
-    queue = Queue(200)
+    queue = Queue(2000)
+
     process_sever = Process(target=server_run, args=(queue, host,))
     process_detect = Process(target=eyes_detect_func, args=(queue, detect,))
     process_sever.start()
