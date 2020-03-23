@@ -19,12 +19,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 
-
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.util.Iterator;
 import java.util.List;
@@ -89,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
     private void addCallBack() {
         if(mCamera!=null){
+            System.out.println("helloWorld");
             mCamera.setPreviewCallback(new Camera.PreviewCallback() {
                 @Override
                 public void onPreviewFrame(byte[] data, Camera camera) {
@@ -113,6 +116,18 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                 }
             });
         }
+    }
+
+
+
+    private String utfToString(byte[] data,int size) {
+        String str = null;
+        try {
+            str = new String(data, 0,size,"UTF-8");
+        } catch (UnsupportedEncodingException ignored) {
+        }
+        return str;
+
     }
 
     private  void response(ByteArrayOutputStream byteArrayOutputStream ){
@@ -140,10 +155,20 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                 outputStream.flush();
             }
             socket.shutdownOutput();
-//            InputStream result = socket.getInputStream();
-//            byte []b = new byte[1024];
-//            int i = result.read(b);
-//            outputStream.close();
+
+
+
+            InputStream result = socket.getInputStream();
+            byte []temp = new byte[1024];
+            int temp_size = result.read(temp);
+            String response = utfToString(temp, temp_size);
+            response.trim();
+            System.out.println("LooK"+response);
+            result.close();
+
+
+
+            outputStream.close();
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();

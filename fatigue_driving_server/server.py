@@ -6,10 +6,12 @@ from PIL import Image
 
 
 class server_process():
+    def __init__(self, host):
+        self.host = host
 
-    def run(self,host):
-        while True:
-            new_host, addr = host.accept() #初始化
+    def run(self, queue, address):
+        try:
+            new_host, addr = self.host.accept()  # 初始化
             size = new_host.recv(10)
             size_str = str(size, encoding="utf-8")  # 将Byte流转string
             size_str = size_str.strip()
@@ -27,12 +29,16 @@ class server_process():
                 temp = temp + data
                 data_size = len(data)
                 has_size = has_size + data_size
-            new_host.close()  # 传输结束
+            # new_host.close()  # 传输结束
 
-            # 图像处理
-            image = Image.open(BytesIO(temp))
-            img = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
+        except:
+            return
 
-    def get_image(self, img):
-        return img
-        pass
+        # 图像处理
+        image = Image.open(BytesIO(temp))
+        img = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
+
+        queue.put(img)
+        address.put(new_host)
+        # cv2.imshow("Frame", img)
+        # cv2.waitKey(1)

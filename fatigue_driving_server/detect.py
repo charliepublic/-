@@ -16,7 +16,6 @@ def eye_aspect_ratio(eyes):
     return eye_distance
 
 
-
 class eyes_detect():
     def __init__(self):
 
@@ -56,7 +55,7 @@ class eyes_detect():
 
         return ear
 
-    def detect_picture(self, frame):
+    def detect_picture(self, frame, notify):
         # print("get")
 
         # Start time
@@ -74,12 +73,16 @@ class eyes_detect():
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
                     cv2.putText(frame, "****************ALERT!****************", (10, 325),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-
+                    notify.put(True)
+                else:
+                    notify.put(False)
 
             else:
                 self.flag = 0
+                notify.put(False)
         except IndexError:
             print("detect err")
+            notify.put(False)
         # End time
         end = time.time()
         # Time elapsed
